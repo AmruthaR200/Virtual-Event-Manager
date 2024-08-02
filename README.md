@@ -1,4 +1,5 @@
 # Virtual-Event-Manager
+# Front-End Only
 
 Concept of the project:
 
