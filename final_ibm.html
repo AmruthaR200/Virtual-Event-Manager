@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainable Event Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #B1D8B7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+        }
+        header {
+            background-color: #76B947;
+            color: #ffffff;
+            text-align: center;
+            padding: 1.5em 0;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: auto;
+            overflow: hidden;
+        }
+        .section {
+            background: #94C973;
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            color: #000000;
+        }
+        .section h2 {
+            color: #ffffff;
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 16px;
+            color: white;
+            background-color: #2F5233;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #94C973;
+        }
+        .input-field {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #B1D8B7;
+            color: #2F5233;
+        }
+        select {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: #B1D8B7;
+            color: #2F5233;
+        }
+        .result-message {
+            color: #2F5233;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+        .date-time-inputs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .date-time-inputs > * {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sustainable Event Planner</h1>
+    </header>
+
+    <div class="container" id="eventDetailsContainer">
+        <div class="section">
+            <h2>Enter Event Details</h2>
+            <label for="venue">Venue (for offline events):</label>
+            <select id="venue" class="input-field">
+                <option value="">Select a venue</option>
+                <option value="City Hall">City Hall</option>
+                <option value="Convention Center">Convention Center</option>
+                <option value="Local Park">Local Park</option>
+            </select>
+            <label for="eventTheme">Event Theme:</label>
+            <input type="text" id="eventTheme" class="input-field" placeholder="Event Theme" required>
+            <div class="date-time-inputs">
+                <div>
+                    <label for="eventDate">Event Date:</label>
+                    <input type="date" id="eventDate" class="input-field" required>
+                </div>
+                <div>
+                    <label for="eventTime">Event Time:</label>
+                    <input type="time" id="eventTime" class="input-field" required>
+                </div>
+            </div>
+            <label for="numParticipants">Number of participants:</label>
+            <input type="number" id="numParticipants" class="input-field" placeholder="Number of participants" required>
+            <label for="eventDuration">Event duration (hours):</label>
+            <input type="number" id="eventDuration" class="input-field" placeholder="Event duration (hours)" required>
+            <label for="platformType">Platform type (for virtual events):</label>
+            <select id="platformType" class="input-field">
+                <option value="0.5">Zoom (0.5 kg CO2 per participant-hour)</option>
+                <option value="0.7">Teams (0.7 kg CO2 per participant-hour)</option>
+                <option value="0.4">Google Meet (0.4 kg CO2 per participant-hour)</option>
+            </select>
+            <button type="button" class="btn" onclick="showCarbonFootprintSection()">Next</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="carbonFootprintContainer">
+        <div class="section">
+            <h2>Calculate Your Carbon Footprint</h2>
+            <button type="button" class="btn" onclick="calculateCarbonFootprint()">Calculate</button>
+            <p class="result-message" id="resultMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        function showCarbonFootprintSection() {
+            const eventDetailsContainer = document.getElementById('eventDetailsContainer');
+            const carbonFootprintContainer = document.getElementById('carbonFootprintContainer');
+            
+            eventDetailsContainer.classList.add('hidden');
+            carbonFootprintContainer.classList.remove('hidden');
+        }
+
+        function calculateCarbonFootprint() {
+            const numParticipants = parseFloat(document.getElementById('numParticipants').value);
+            const eventDuration = parseFloat(document.getElementById('eventDuration').value);
+            const platformType = parseFloat(document.getElementById('platformType').value);
+            const resultMessage = document.getElementById('resultMessage');
+            
+            const venue = document.getElementById('venue').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const eventTheme = document.getElementById('eventTheme').value;
+
+            if (isNaN(numParticipants) || isNaN(eventDuration) || !venue || !eventDate || !eventTime || !eventTheme) {
+                resultMessage.textContent = "Please enter valid data for all fields.";
+                return;
+            }
+
+            // Calculate CO2 emissions for virtual events
+            const virtualEmissions = numParticipants * eventDuration * platformType;
+            
+            // Assuming a static emission factor for offline events for simplicity
+            const offlineEmissionsPerParticipant = 0.3; // kg CO2 per participant
+            const offlineEmissions = numParticipants * offlineEmissionsPerParticipant;
+
+            // Total emissions
+            const totalEmissions = virtualEmissions + offlineEmissions;
+
+            resultMessage.textContent = `The estimated carbon footprint for the event is ${totalEmissions.toFixed(2)} kg CO2.`;
+        }
+    </script>
+</body>
+</html>
